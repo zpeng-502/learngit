@@ -21,7 +21,7 @@ year = int(input("请输入年份："))
 is_leap = year % 4 == 0 and year % 100 != 0 or year % 400 ==0
 print(f'{is_leap = }')
 
-'''
+
 #match-case
 
 status_code = int(input('响应码状态：'))
@@ -35,3 +35,26 @@ match status_code:
     case 429: description = 'Too many requests'
     case _:   description = 'Unknown Status Code'
 print('状态码描述：',description)
+
+match status_code:
+    case 400 | 405: description = 'Invalid Request'
+    case 401 | 403 | 404: description = 'Not Allowed'
+    case 418: description = 'I am a teapot'
+    case 429 :description = 'Unknown Status Code'
+print('状态码描述:',description)
+
+
+#分支结构的应用
+x = int(input('x = '))
+if x>1:
+    y = 3 * x -5
+elif -1 <= x <= 1:
+    y = x +2
+else:
+    y = 5 * x + 3
+print(f'y = {y}')
+
+'''
+
+
+
