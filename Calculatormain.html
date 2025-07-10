@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#69b1ff',
+                        neutral: '#f0f2f5',
+                        dark: '#1d2129',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .calculator-shadow {
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            }
+            .button-hover {
+                @apply transition-all duration-200 hover:scale-105;
+            }
+            .button-active {
+                @apply scale-95;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-4 font-inter">
+    <div class="calculator-container w-full max-w-md bg-white rounded-2xl overflow-hidden calculator-shadow">
+        <!-- 历史记录面板 -->
+        <div id="history-panel" class="h-0 overflow-hidden transition-all duration-300 bg-gray-50 border-b border-gray-200">
+            <div class="p-3 text-sm text-gray-500 flex justify-between items-center">
+                <h3 class="font-medium">计算历史</h3>
+                <button id="clear-history" class="text-primary hover:text-primary/80 text-xs">
+                    <i class="fa fa-trash-o mr-1"></i>清空
+                </button>
+            </div>
+            <div id="history-list" class="p-2 max-h-64 overflow-y-auto">
+                <!-- 历史记录将在这里动态添加 -->
+                <div class="text-center text-gray-400 text-sm py-8">暂无历史记录</div>
+            </div>
+        </div>
+
+        <!-- 显示区域 -->
+        <div class="bg-white p-4">
+            <div class="flex justify-between items-center mb-2">
+                <button id="history-toggle" class="text-gray-500 hover:text-primary transition-colors">
+                    <i class="fa fa-history"></i>
+                </button>
+                <span id="memory-indicator" class="text-xs text-primary hidden">M</span>
+            </div>
+            <div id="expression" class="text-right text-gray-500 text-sm h-6 overflow-hidden"></div>
+            <div id="display" class="text-right text-3xl font-semibold h-12 overflow-hidden"></div>
+        </div>
+
+        <!-- 按钮区域 -->
+        <div class="grid grid-cols-4 gap-1 bg-gray-100 p-1">
+            <!-- 第一行 -->
+            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 px-2 rounded-lg button-hover" data-value="AC">
+                <span class="text-lg">AC</span>
+            </button>
+            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 px-2 rounded-lg button-hover" data-value="+/-">
+                <span class="text-lg">+/-</span>
+            </button>
+            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 px-2 rounded-lg button-hover" data-value="%">
+                <span class="text-lg">%</span>
+            </button>
+            <button class="bg-primary hover:bg-primary/90 text-white py-4 px-2 rounded-lg button-hover" data-value="/">
+                <span class="text-lg">÷</span>
+            </button>
+
+            <!-- 第二行 -->
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="7">
+                <span class="text-lg">7</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="8">
+                <span class="text-lg">8</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="9">
+                <span class="text-lg">9</span>
+            </button>
+            <button class="bg-primary hover:bg-primary/90 text-white py-4 px-2 rounded-lg button-hover" data-value="*">
+                <span class="text-lg">×</span>
+            </button>
+
+            <!-- 第三行 -->
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="4">
+                <span class="text-lg">4</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="5">
+                <span class="text-lg">5</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="6">
+                <span class="text-lg">6</span>
+            </button>
+            <button class="bg-primary hover:bg-primary/90 text-white py-4 px-2 rounded-lg button-hover" data-value="-">
+                <span class="text-lg">−</span>
+            </button>
+
+            <!-- 第四行 -->
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="1">
+                <span class="text-lg">1</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="2">
+                <span class="text-lg">2</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value="3">
+                <span class="text-lg">3</span>
+            </button>
+            <button class="bg-primary hover:bg-primary/90 text-white py-4 px-2 rounded-lg button-hover" data-value="+">
+                <span class="text-lg">+</span>
+            </button>
+
+            <!-- 第五行 -->
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover col-span-2" data-value="0">
+                <span class="text-lg">0</span>
+            </button>
+            <button class="bg-white hover:bg-gray-100 text-gray-800 py-4 px-2 rounded-lg button-hover" data-value=".">
+                <span class="text-lg">.</span>
+            </button>
+            <button class="bg-primary hover:bg-primary/90 text-white py-4 px-2 rounded-lg button-hover" data-value="=">
+                <span class="text-lg">=</span>
+            </button>
+        </div>
+
+        <!-- 记忆功能按钮 -->
+        <div class="grid grid-cols-5 gap-1 bg-gray-50 p-1 border-t border-gray-200">
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-2 rounded button-hover text-xs" data-value="MC">
+                MC
+            </button>
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-2 rounded button-hover text-xs" data-value="MR">
+                MR
+            </button>
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-2 rounded button-hover text-xs" data-value="M+">
+                M+
+            </button>
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-2 rounded button-hover text-xs" data-value="M-">
+                M-
+            </button>
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-2 rounded button-hover text-xs" data-value="MS">
+                MS
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 当前显示的数字
+        let currentValue = '0';
+        // 表达式
+        let expression = '';
+        // 是否是新的输入
+        let isNewInput = true;
+        // 记忆值
+        let memoryValue = 0;
+        // 是否有记忆值
+        let hasMemory = false;
+        // 历史记录
+        let history = [];
+
+        // 获取DOM元素
+        const display = document.getElementById('display');
+        const expressionElement = document.getElementById('expression');
+        const memoryIndicator = document.getElementById('memory-indicator');
+        const historyPanel = document.getElementById('history-panel');
+        const historyList = document.getElementById('history-list');
+        const historyToggle = document.getElementById('history-toggle');
+        const clearHistoryButton = document.getElementById('clear-history');
+
+        // 更新显示
+        function updateDisplay() {
+            // 格式化显示的数字
+            if (currentValue.includes('.')) {
+                const parts = currentValue.split('.');
+                display.textContent = parseFloat(parts[0]).toLocaleString() + '.' + parts[1];
+            } else {
+                display.textContent = parseFloat(currentValue).toLocaleString();
+            }
+
+            // 更新表达式显示
+            if (expression) {
+                expressionElement.textContent = expression;
+            } else {
+                expressionElement.textContent = '';
+            }
+
+            // 更新记忆指示器
+            if (hasMemory) {
+                memoryIndicator.classList.remove('hidden');
+            } else {
+                memoryIndicator.classList.add('hidden');
+            }
+        }
+
+        // 处理数字输入
+        function handleNumber(value) {
+            if (isNewInput) {
+                currentValue = value;
+                isNewInput = false;
+            } else {
+                // 限制数字长度
+                if (currentValue.length < 15) {
+                    // 不允许0开头的多位数字
+                    if (currentValue === '0' && value !== '0') {
+                        currentValue = value;
+                    } else {
+                        currentValue += value;
+                    }
+                }
+            }
+            updateDisplay();
+        }
+
+        // 处理操作符
+        function handleOperator(operator) {
+            if (expression && isNewInput) {
+                // 如果是新输入且已有表达式，替换最后一个操作符
+                expression = expression.slice(0, -1) + operator;
+            } else {
+                // 将当前值添加到表达式
+                expression += currentValue + operator;
+            }
+            isNewInput = true;
+            updateDisplay();
+        }
+
+        // 处理等号
+        function handleEquals() {
+            if (!expression) return;
+
+            // 构建完整的表达式
+            const fullExpression = expression + currentValue;
+
+            try {
+                // 使用eval计算表达式的值
+                const result = eval(fullExpression);
+
+                // 限制结果的小数位数
+                const formattedResult = result.toFixed(10).replace(/\.?0+$/, '');
+
+                // 添加到历史记录
+                addToHistory(fullExpression, formattedResult);
+
+                // 更新显示
+                currentValue = formattedResult.toString();
+                expression = '';
+                isNewInput = true;
+                updateDisplay();
+            } catch (error) {
+                currentValue = '错误';
+                expression = '';
+                isNewInput = true;
+                updateDisplay();
+                setTimeout(() => {
+                    currentValue = '0';
+                    updateDisplay();
+                }, 2000);
+            }
+        }
+
+        // 处理小数点
+        function handleDecimal() {
+            if (isNewInput) {
+                currentValue = '0.';
+                isNewInput = false;
+            } else {
+                if (!currentValue.includes('.')) {
+                    currentValue += '.';
+                }
+            }
+            updateDisplay();
+        }
+
+        // 处理正负号
+        function handleSign() {
+            currentValue = (parseFloat(currentValue) * -1).toString();
+            updateDisplay();
+        }
+
+        // 处理百分比
+        function handlePercentage() {
+            currentValue = (parseFloat(currentValue) / 100).toString();
+            updateDisplay();
+        }
+
+        // 处理清除
+        function handleClear() {
+            if (currentValue !== '0' && !isNewInput) {
+                // 清除当前输入
+                currentValue = '0';
+            } else {
+                // 完全清除
+                currentValue = '0';
+                expression = '';
+            }
+            isNewInput = true;
+            updateDisplay();
+        }
+
+        // 处理记忆功能
+        function handleMemory(command) {
+            const currentNumber = parseFloat(currentValue);
+
+            switch (command) {
+                case 'MC': // 清除记忆
+                    memoryValue = 0;
+                    hasMemory = false;
+                    break;
+                case 'MR': // 读取记忆
+                    currentValue = memoryValue.toString();
+                    isNewInput = true;
+                    break;
+                case 'M+': // 记忆相加
+                    memoryValue += currentNumber;
+                    hasMemory = true;
+                    break;
+                case 'M-': // 记忆相减
+                    memoryValue -= currentNumber;
+                    hasMemory = true;
+                    break;
+                case 'MS': // 保存到记忆
+                    memoryValue = currentNumber;
+                    hasMemory = true;
+                    break;
+            }
+            updateDisplay();
+        }
+
+        // 添加到历史记录
+        function addToHistory(expression, result) {
+            // 替换操作符为更友好的显示
+            const displayExpression = expression
+                .replace(/\*/g, '×')
+                .replace(/\//g, '÷')
+                .replace(/\+/g, '+')
+                .replace(/-/g, '−');
+
+            history.unshift({
+                expression: displayExpression,
+                result: result.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            });
+
+            // 限制历史记录数量
+            if (history.length > 20) {
+                history.pop();
+            }
+
+            updateHistoryDisplay();
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<div class="text-center text-gray-400 text-sm py-8">暂无历史记录</div>';
+                return;
+            }
+
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'p-2 border-b border-gray-100 last:border-b-0 hover:bg-gray-100 transition-colors';
+                historyItem.innerHTML = `
+                    <div class="text-xs text-gray-500">${item.expression}</div>
+                    <div class="font-medium">${item.result}</div>
+                `;
+                historyItem.addEventListener('click', () => {
+                    currentValue = item.result.replace(/,/g, '');
+                    isNewInput = true;
+                    updateDisplay();
+                    toggleHistoryPanel();
+                });
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // 切换历史面板
+        function toggleHistoryPanel() {
+            if (historyPanel.style.height === '200px') {
+                historyPanel.style.height = '0';
+            } else {
+                historyPanel.style.height = '200px';
+                updateHistoryDisplay();
+            }
+        }
+
+        // 清除历史记录
+        function clearHistory() {
+            history = [];
+            updateHistoryDisplay();
+        }
+
+        // 初始化
+        function init() {
+            updateDisplay();
+
+            // 为所有按钮添加点击事件
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('mousedown', () => {
+                    button.classList.add('button-active');
+                });
+
+                button.addEventListener('mouseup', () => {
+                    button.classList.remove('button-active');
+                });
+
+                button.addEventListener('mouseleave', () => {
+                    button.classList.remove('button-active');
+                });
+
+                button.addEventListener('click', () => {
+                    const value = button.getAttribute('data-value');
+
+                    if (/[0-9]/.test(value)) {
+                        handleNumber(value);
+                    } else if (['+', '-', '*', '/'].includes(value)) {
+                        handleOperator(value);
+                    } else if (value === '=') {
+                        handleEquals();
+                    } else if (value === '.') {
+                        handleDecimal();
+                    } else if (value === '+/-') {
+                        handleSign();
+                    } else if (value === '%') {
+                        handlePercentage();
+                    } else if (value === 'AC') {
+                        handleClear();
+                    } else if (['MC', 'MR', 'M+', 'M-', 'MS'].includes(value)) {
+                        handleMemory(value);
+                    }
+                });
+            });
+
+            // 历史记录切换
+            historyToggle.addEventListener('click', toggleHistoryPanel);
+
+            // 清除历史记录
+            clearHistoryButton.addEventListener('click', clearHistory);
+
+            // 键盘支持
+            document.addEventListener('keydown', (event) => {
+                const key = event.key;
+
+                // 数字键
+                if (/[0-9]/.test(key)) {
+                    handleNumber(key);
+                    event.preventDefault();
+                }
+
+                // 操作符
+                if (['+', '-', '*', '/'].includes(key)) {
+                    handleOperator(key);
+                    event.preventDefault();
+                }
+
+                // 等号和Enter
+                if (key === '=' || key === 'Enter') {
+                    handleEquals();
+                    event.preventDefault();
+                }
+
+                // 小数点
+                if (key === '.') {
+                    handleDecimal();
+                    event.preventDefault();
+                }
+
+                // 退格键
+                if (key === 'Backspace') {
+                    if (currentValue.length > 1) {
+                        currentValue = currentValue.slice(0, -1);
+                    } else {
+                        currentValue = '0';
+                    }
+                    updateDisplay();
+                    event.preventDefault();
+                }
+
+                // Escape键
+                if (key === 'Escape') {
+                    handleClear();
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // 初始化计算器
+        init();
+    </script>
+</body>
+</html>
